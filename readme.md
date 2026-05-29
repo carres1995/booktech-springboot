@@ -1,6 +1,6 @@
 # LibroTech
 
-![CI Status](https://github.com/carres1995/booktech-springboot.git/.github/workflows/ci.yml/badge.svg)
+[![CI Status](https://github.com/carres1995/booktech-springboot/actions/workflows/ci.yml/badge.svg)](https://github.com/carres1995/booktech-springboot/actions/workflows/ci.yml)
 
 Sistema de gestión de biblioteca desarrollado con Spring Boot.
 
