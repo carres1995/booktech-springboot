@@ -12,7 +12,7 @@ jobs:
   # ────────────────────────────────────────
   compile:
     name: Compile
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Checkout
@@ -23,6 +23,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+
 
       - name: Caching Maven
         uses: actions/cache@v4
@@ -40,7 +41,7 @@ jobs:
   # ────────────────────────────────────────
   test:
     name: Tests
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: compile  # ← Espera a que "compile" termine exitosamente
 
     steps:
@@ -78,7 +79,7 @@ jobs:
   # ────────────────────────────────────────
   coverage:
     name: Coverage
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: test  # ← Espera a que "test" termine
 
     steps:
@@ -88,7 +89,7 @@ jobs:
       - name: Config JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
 
       - name: Caching Maven
