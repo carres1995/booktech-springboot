@@ -67,10 +67,6 @@ public class BookController {
         return ResponseEntity.ok(dto);
     }
 
-    public void metodoRoto() {
-        int x = "esto no es un número"; // ERROR de compilación
-    }
-
     @GetMapping("/jpql")
     public ResponseEntity<Map<String, Object>> getWithRelations(
             @RequestParam(defaultValue = "0") final int page,
