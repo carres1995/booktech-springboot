@@ -1,0 +1,51 @@
+# ============================================
+# 🚀 Pipeline CI de LibroTech
+# Se ejecuta con cada push al repositorio
+# ============================================
+name: BookTech CI
+
+# ¿Cuándo se ejecuta este pipeline?
+on:
+  push:
+    branches: [ main, develop ]     # Cuando se hace push a main o develop
+  pull_request:
+    branches: [ main ]              # Cuando se abre un PR hacia main
+
+jobs:
+  # ────────────────────────────────────────
+  # Job 1: Compilar el proyecto
+  # ────────────────────────────────────────
+  build:
+    name: Compile proyect
+    runs-on: windows-latest         # Máquina virtual Ubuntu (gratis)
+
+    steps:
+      # Paso 1: Descargar el código del repositorio
+      - name: Checkout of code
+        uses: actions/checkout@v4
+        # Esto es como hacer "git clone" dentro de la máquina virtual
+
+      # Paso 2: Instalar Java 17
+      - name: Config JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+        # "temurin" es la distribución de Java de Eclipse (gratuita y popular)
+
+      # Paso 3: Cachear las dependencias de Maven
+      - name: Caching Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+        # El caché guarda las dependencias descargadas para que la
+        # próxima vez no tenga que descargarlas de nuevo (más rápido)
+
+      # Paso 4: Compilar el proyecto
+      - name: Compile with Maven
+        run: mvn compile -B
+        # -B = "Batch mode" (no muestra barras de progreso interactivas)
+        # Si la compilación falla, el pipeline se detiene aquí ❌
