@@ -1,3 +1,9 @@
+# LibroTech
+
+![CI Status](https://github.com/carres1995/booktech-springboot.git/actions/workflows/ci.yml/badge.svg)
+
+Sistema de gestión de biblioteca desarrollado con Spring Boot.
+
 ### Diferencias entre EntityGraphj y Join Fetch
 
 las 2 eliminan el problema que genera el N+1 que es el hecho que por cada consulta si contiene una relacion compleja la
