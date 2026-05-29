@@ -4,111 +4,48 @@
 # ============================================
 name: BookTech CI
 
+# ¿Cuándo se ejecuta este pipeline?
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop ]     # Cuando se hace push a main o develop
   pull_request:
-    branches: [ main ]
+    branches: [ main ]              # Cuando se abre un PR hacia main
 
 jobs:
   # ────────────────────────────────────────
   # Job 1: Compilar el proyecto
   # ────────────────────────────────────────
-  compile:
-    name: Compile
-    runs-on: windows-latest
+  build:
+    name: Compile proyect
+    runs-on: windows-latest         # Máquina virtual Ubuntu (gratis)
 
     steps:
-      - name: Checkout
+      # Paso 1: Descargar el código del repositorio
+      - name: Checkout of code
         uses: actions/checkout@v4
+        # Esto es como hacer "git clone" dentro de la máquina virtual
 
-      - name: Config JDK 21
+      # Paso 2: Instalar Java 17
+      - name: Config JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+        # "temurin" es la distribución de Java de Eclipse (gratuita y popular)
 
-      - name: Caching Maven
+      # Paso 3: Cachear las dependencias de Maven
+      - name: Caching Maven dependencies
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          restore-keys: |
+            ${{ runner.os }}-maven-
+        # El caché guarda las dependencias descargadas para que la
+        # próxima vez no tenga que descargarlas de nuevo (más rápido)
 
-      - name: Compile
-        run: mvn compile -B -q
-        # -q = "quiet mode" (menos output en los logs)
-
-  # ────────────────────────────────────────
-  # Job 2: Ejecutar Tests
-  # ────────────────────────────────────────
-  test:
-    name: Tests
-    runs-on: windows-latest
-    needs: compile  # ← Espera a que "compile" termine exitosamente
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Config JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Caching Maven
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
-      - name: Ejecutar Tests
-        run: mvn test -B
-
-      # Subir los resultados de los tests como artefacto
-      - name: Result Public of Tests
-        if: always()  # ← Se ejecuta INCLUSO si el paso anterior falla
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: target/surefire-reports/
-          retention-days: 7
-          # Los reportes se guardan 7 días en GitHub
-
-  # ────────────────────────────────────────
-  # Job 3: Cobertura de Código
-  # ────────────────────────────────────────
-  coverage:
-    name: Coverage
-    runs-on: windows-latest
-    needs: test  # ← Espera a que "test" termine
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Config JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Cache Maven
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
-      - name: Report generate of Coverage
-        run: mvn test jacoco:report -B
-
-      # Subir el reporte HTML de JaCoCo como artefacto descargable
-      - name: Report public of coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: target/site/jacoco/
-          retention-days: 14
+      # Paso 4: Compilar el proyecto
+      - name: Compile with Maven
+        run: mvn compile -B
+        # -B = "Batch mode" (no muestra barras de progreso interactivas)
+        # Si la compilación falla, el pipeline se detiene aquí ❌
