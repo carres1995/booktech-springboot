@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Catálogo de Libros - LibroTech</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f5f7fa; }
+        .header { background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+                   color: white; padding: 20px 40px; }
+        .header h1 { margin: 0; }
+        .container { max-width: 1100px; margin: 20px auto; padding: 0 20px; }
+
+        /* Filtros */
+        .filters { background: white; padding: 20px; border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 20px;
+                    display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
+        .filter-group { display: flex; flex-direction: column; }
+        .filter-group label { font-weight: 600; margin-bottom: 5px; font-size: 0.9em; color: #555; }
+        .filter-group input, .filter-group select {
+            padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95em; }
+        .btn-search { padding: 8px 20px; background: #3498db; color: white;
+                       text-decoration: none;
+                       border: none; border-radius: 6px; cursor: pointer; font-size: 0.95em; }
+        .btn-clear { padding: 8px 20px; background: #e0e0e0; color: #333;
+                      border: none; border-radius: 6px; cursor: pointer; text-decoration: none;
+                      font-size: 0.95em; display: inline-block; }
+
+        /* Tabla */
+        table { width: 100%; border-collapse: collapse; background: white;
+                border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        th { background: #2c3e50; color: white; padding: 12px 15px; text-align: left; }
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; }
+        tr:hover { background: #f0f7ff; }
+
+        /* Paginación */
+        .pagination { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
+        .pagination a { padding: 10px 20px; background: #3498db; color: white;
+                         border-radius: 6px; text-decoration: none; }
+        .pagination a.disabled { background: #ccc; pointer-events: none; }
+        .empty-state { text-align: center; padding: 60px; color: #888; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>LibroTech — Catálogo de Libros</h1>
+</div>
+
+<div class="container">
+
+    <!-- ===== BARRA DE FILTROS ===== -->
+    <form class="filters" th:action="@{/admin/libros}" method="get">
+        <div class="filter-group">
+            <label for="pais">País de Editorial</label>
+            <input type="text" id="pais" name="pais"
+                   th:value="${filterPais}" placeholder="Ej: España"/>
+        </div>
+
+        <div class="filter-group">
+            <label for="generoId">Género Literario</label>
+            <select id="generoId" name="generoId">
+                <option value="">— Todos —</option>
+                <option th:each="gen : ${categories}"
+                        th:value="${gen.id}"
+                        th:text="${gen.name}"
+                        th:selected="${filterGeneroId != null AND filterGeneroId == gen.id}">
+                </option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-search">🔍 Buscar</button>
+        <a th:href="@{/admin/libros}" class="btn-clear">Limpiar</a>
+        <a th:href=" @{/admin/libros/nuevo}" class="btn-search">Crear libro</a>
+    </form>
+
+    <!-- ===== TABLA DE LIBROS ===== -->
+    <div th:if="${#lists.isEmpty(libros)}" class="empty-state">
+        <h2>No se encontraron libros</h2>
+        <p>Intente con otros filtros de búsqueda.</p>
+    </div>
+
+    <table th:unless="${#lists.isEmpty(libros)}">
+        <thead>
+        <tr>
+            <th>Título</th>
+            <th>Fecha Publicación</th>
+            <th>Precio</th>
+            <th>Editorial</th>
+            <th>País</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="book : ${libros}">
+            <td th:text="${book.title()}">Título del libro</td>
+            <td th:text="${book.fechaPublicacion()}">2026-01-01</td>
+            <td th:text="${'$' + #numbers.formatDecimal(book.price(), 0, 'COMMA', 0, 'POINT')}">$0</td>
+            <td th:text="${book.nameEditorial()}">Editorial</td>
+            <td th:text="${book.nameEditorial()}">País</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- ===== PAGINACIÓN CON FILTROS PERSISTENTES ===== -->
+    <div class="pagination">
+        <!--
+            CLAVE: Los enlaces de paginación MANTIENEN los filtros activos.
+            Si el usuario buscó pais=España, al pasar a la página 2
+            la URL será: /admin/libros?pais=España&page=1
+        -->
+        <a th:href="@{/admin/libros(
+                    pais=${filterPais},
+                    generoId=${filterGeneroId},
+                    page=${currentPage - 1})}"
+           th:classappend="${!hasPrevious} ? 'disabled' : ''">
+            ← Anterior
+        </a>
+
+        <span style="padding: 10px; font-weight: bold;"
+              th:text="'Página ' + (${currentPage} + 1)">Página 1</span>
+
+        <a th:href="@{/admin/libros(
+                    pais=${filterPais},
+                    generoId=${filterGeneroId},
+                    page=${currentPage + 1})}"
+           th:classappend="${!hasNext} ? 'disabled' : ''">
+            Siguiente →
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>

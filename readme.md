@@ -151,3 +151,14 @@ paths:
 
 En el contexto de la ingeniería de software y los pipelines, un artifact (artefacto) es cualquier archivo o paquete
 generado como resultado de un proceso de compilación o construcción (build).
+
+### query consultas filtros avanzados
+
+Hibernate:
+select distinct b1_0.id, b1_0.title, b1_0.fecha_publicacion, b1_0.price, e1_0.name, e1_0.country
+from books b1_0
+join editorials e1_0 on e1_0.id=b1_0.editorial_id
+where lower(e1_0.country) like lower(('%'||?||'%')) escape ''
+order by b1_0.fecha_publicacion desc
+fetch first ? rows only
+

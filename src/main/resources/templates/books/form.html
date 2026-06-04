@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Nuevo Libro</title>
+    <!-- Incluir Bootstrap para facilitar los estilos de error -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Registrar Nuevo Libro</h2>
+
+    <form th:action="@{/admin/libros/guardar}" th:object="${libroCreateDTO}" method="post">
+
+        <!-- Campo: Título -->
+        <div class="mb-3">
+            <label class="form-label">Título</label>
+            <!-- th:errorclass agrega la clase 'is-invalid' de Bootstrap si hay error -->
+            <input type="text" th:field="*{title}"
+                   class="form-control" th:errorclass="is-invalid">
+
+            <!-- Aquí se imprime el mensaje del DTO (@NotBlank) -->
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">
+                Error de título
+            </div>
+        </div>
+
+        <!-- Campo: Autor -->
+        <div class="mb-3">
+            <label class="form-label">Autor</label>
+            <input type="text" th:field="*{author}"
+                   class="form-control" th:errorclass="is-invalid">
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('author')}" th:errors="*{author}"></div>
+        </div>
+
+        <!-- Campo: Precio -->
+        <div class="mb-3">
+            <label class="form-label">Precio</label>
+            <input type="number" step="0.01" th:field="*{price}"
+                   class="form-control" th:errorclass="is-invalid">
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+        </div>
+
+        <div>
+            <label class="form-label">ISBN</label>
+            <input type="text" th:field="*{isbn}" class="form-control" th:errorclass="is-invalid">
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}"></div>
+        </div>
+
+        <div>
+            <label class="form-label">ISBN</label>
+            <input type="date" th:field="*{fechaPublicacion}" class="form-control" th:errorclass="is-invalid">
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaPublicacion')}"
+                 th:errors="*{fechaPublicacion}"></div>
+        </div>
+        <div>
+            <label class="form-label">Editorial</label>
+            <select th:field="*{editorialId}" class="form-select" th:errorclass="is-invalid">
+                <option value="">-- Seleccione una editorial --</option>
+                <option th:each="ed : ${editoriales}"
+                        th:value="${ed.id}"
+                        th:text="${ed.name}">Nombre Editorial
+                </option>
+            </select>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('editorialId')}" th:errors="*{editorialId}"></div>
+        </div>
+        <div>
+            <label class="form-label">Categorías</label>
+            <div class="form-check" th:each="cat : ${todasCategorias}">
+                <input class="form-check-input" type="checkbox"
+                       th:field="*{categoriesIds}"
+                       th:value="${cat.id}">
+                <label class="form-check-label" th:text="${cat.name}">Nombre Categoría</label>
+            </div>
+            <div class="text-danger small" th:if="${#fields.hasErrors('categoriesIds')}"
+                 th:errors="*{categoriesIds}"></div>
+        </div>
+
+        <!-- Omitimos el resto de campos por brevedad, aplique el mismo patrón -->
+
+        <button type="submit" class="btn btn-primary">Guardar Libro</button>
+    </form>
+</div>
+</body>
+</html>

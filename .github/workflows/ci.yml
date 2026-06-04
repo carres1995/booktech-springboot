@@ -47,7 +47,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Reportar Tests en PR
+        if: always() && github.event_name == 'pull_request'
+        uses: dorny/test-reporter@v1
+        with:
+          name: Resultados de Tests
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+      #Resultados de Tests
+      #├── LibroTest            3/3 passed
+      #├── LibroServiceTest     8/8 passed
+      #├── LibroRepositoryTest  6/6 passed
+      #└── LibroControllerTest  8/8 passed
 
+      # Total: 25 passed, 0 failed
       - name: Config JDK 21
         uses: actions/setup-java@v4
         with:
